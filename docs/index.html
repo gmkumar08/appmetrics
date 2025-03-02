@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Usage Chart</title>
+
+    <!-- Bootstrap for styling -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        /* Ensure full height */
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Layout: Divide screen into 4 quadrants */
+        .container-fluid {
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 5px;
+        }
+
+        /* Define quadrants */
+        .quadrant {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        /* Dropdown styling */
+        #dropdown-container {
+            padding: 10px;
+            background: #f8f9fa;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Dropdown (Outside Quadrants) -->
+    <div id="dropdown-container">
+        <label for="csvDropdown">Select CSV File:</label>
+        <select id="csvDropdown" class="form-select w-auto d-inline-block"></select>
+    </div>
+
+    <!-- 4 Quadrants Layout -->
+    <div class="container-fluid">
+        <div id="quadrant-1" class="quadrant"><div id="chart"></div></div>
+        <div id="quadrant-2" class="quadrant"></div>
+        <div id="quadrant-3" class="quadrant"></div>
+        <div id="quadrant-4" class="quadrant"></div>
+    </div>
+
+    <!-- Script -->
+    <script src="script.js"></script>
+</body>
+</html>
