@@ -1,98 +1,165 @@
-document.addEventListener("DOMContentLoaded", async function () {
-    const dropdown = document.getElementById("csvDropdown");
-    const chartContainer = document.getElementById("chart");
+document.addEventListener("DOMContentLoaded", function () {
+  const csvDropdown = document.getElementById("csvDropdown");
 
-    if (!dropdown) {
-        console.error("Dropdown element (csvDropdown) not found.");
-        return;
+  if (!csvDropdown) {
+    console.error("Dropdown element (csvDropdown) not found.");
+    return;
+  }
+
+  let csvFiles = ["file1.csv", "file2.csv"]; // Update with actual filenames
+
+  if (csvFiles.length === 0) {
+    console.error("No CSV files found.");
+    return;
+  }
+
+  // Populate dropdown
+  csvFiles.forEach((file) => {
+    let option = document.createElement("option");
+    option.value = file;
+    option.textContent = file;
+    csvDropdown.appendChild(option);
+  });
+
+  // Load first CSV by default
+  loadCSV(csvFiles[0]);
+
+  csvDropdown.addEventListener("change", function () {
+    loadCSV(csvDropdown.value);
+  });
+
+  let timestamps = [],
+    cpuUsage = [],
+    memoryUsage = [];
+
+  function loadCSV(filename) {
+    fetch(`csv/${filename}`)
+      .then((response) => response.text())
+      .then((csvData) => {
+        processCSV(csvData);
+      })
+      .catch((error) => console.error("Error fetching CSV:", error));
+  }
+
+  function processCSV(csvData) {
+    let rows = csvData
+      .trim()
+      .split("\n")
+      .map((row) => row.split(","));
+
+    if (rows.length < 2) {
+      console.error("CSV file is empty or invalid.");
+      return;
     }
 
-    let csvFiles = [];
+    timestamps = [];
+    cpuUsage = [];
+    memoryUsage = [];
 
-    // 🌍 Try fetching CSV files dynamically (Works Locally, but NOT on GitHub Pages)
-    try {
-        const response = await fetch("/csv/");
-        if (response.ok) {
-            const text = await response.text();
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(text, "text/html");
-            const links = [...htmlDoc.querySelectorAll("a")];
-
-            csvFiles = links
-                .map(link => link.getAttribute("href"))
-                .filter(href => href.endsWith(".csv"))
-                .map(file => `csv/${file}`);
-        } else {
-            throw new Error("Fetch failed");
-        }
-    } catch (error) {
-        console.warn("⚠️ Cannot fetch CSV files dynamically. Falling back to manual list.");
-        // 🚀 Use a manual list for GitHub Pages
-        csvFiles = [
-            "csv/file1.csv",
-            "csv/file2.csv",
-            "csv/file3.csv"
-        ];
-    }
-
-    if (csvFiles.length === 0) {
-        console.warn("No CSV files found.");
-        return;
-    }
-
-    // Populate dropdown
-    dropdown.innerHTML = csvFiles
-        .map(file => `<option value="${file}">${file.replace("csv/", "")}</option>`)
-        .join("");
-
-    // Load first CSV file by default
-    loadCSV(csvFiles[0]);
-
-    // Handle dropdown change
-    dropdown.addEventListener("change", function () {
-        loadCSV(this.value);
+    rows.slice(1).forEach((row) => {
+      timestamps.push(row[0]);
+      cpuUsage.push(parseFloat(row[1]));
+      memoryUsage.push(parseFloat(row[2]));
     });
 
-    async function loadCSV(csvFile) {
-        try {
-            const response = await fetch(csvFile);
-            const csvData = await response.text();
+    plotCharts();
+  }
 
-            const rows = csvData.split("\n").slice(1); // Skip header
-            const timestamps = [];
-            const usage = [];
+  function plotCharts() {
+    let cpuTrace = {
+      x: timestamps,
+      y: cpuUsage,
+      mode: "lines",
+      name: "CPU Usage",
+      line: { color: "blue" },
+    };
 
-            rows.forEach(row => {
-                const cols = row.split(",");
-                if (cols.length >= 2) {
-                    timestamps.push(cols[0]); // Time
-                    usage.push(parseFloat(cols[1])); // CPU Usage %
-                }
-            });
+    let memoryTrace = {
+      x: timestamps,
+      y: memoryUsage,
+      mode: "lines",
+      name: "Memory Usage",
+      line: { color: "green" },
+    };
 
-            plotChart(timestamps, usage);
-        } catch (error) {
-            console.error("Error loading CSV:", error);
-        }
+    let commonLayout = {
+      xaxis: {
+        title: "Timestamp",
+        showspikes: true,
+        spikemode: "across",
+        spikesnap: "cursor",
+        spikedash: "solid",
+        spikecolor: "black",
+        spikethickness: 1.5,
+      },
+      yaxis: {
+        title: "Usage (%)",
+        showspikes: true,
+        spikemode: "across",
+        spikesnap: "cursor",
+        spikedash: "solid",
+        spikecolor: "black",
+        spikethickness: 1.5,
+      },
+      hovermode: "x unified", // Disable default rectangular tooltip
+      dragmode: false, // Completely disable zooming
+    };
+
+    let layoutCPU = { ...commonLayout, title: "CPU Usage" };
+    let layoutMemory = { ...commonLayout, title: "Memory Usage" };
+
+    Plotly.newPlot("cpuChart", [cpuTrace], layoutCPU, {
+      displayModeBar: false,
+    });
+    Plotly.newPlot("memoryChart", [memoryTrace], layoutMemory, {
+      displayModeBar: false,
+    });
+
+    // Sync tooltips between both charts
+    syncHover("cpuChart", "memoryChart");
+    syncHover("memoryChart", "cpuChart");
+  }
+
+  function syncHover(sourceId, targetId) {
+    let sourceChart = document.getElementById(sourceId);
+    let targetChart = document.getElementById(targetId);
+
+    if (!sourceChart || !targetChart) {
+      console.error(`Chart elements not found: ${sourceId}, ${targetId}`);
+      return;
     }
 
-    function plotChart(timestamps, usage) {
-        const trace = {
-            x: timestamps,
-            y: usage,
-            mode: "lines",
-            name: "CPU Usage",
-            line: { color: "blue" }
-        };
+    sourceChart.on("plotly_hover", function (eventData) {
+      let pointNumber = eventData.points[0].pointNumber;
 
-        const layout = {
-            title: "CPU Usage Over Time",
-            xaxis: { title: "Time" },
-            yaxis: { title: "CPU Usage (%)" },
-            dragmode: "zoom", // Allows zooming like Grafana
-            showlegend: true
-        };
+      Plotly.Fx.hover(targetChart, [
+        { curveNumber: 0, pointNumber: pointNumber },
+      ]);
+    });
 
-        Plotly.newPlot(chartContainer, [trace], layout);
-    }
+    sourceChart.on("plotly_unhover", function () {
+      Plotly.Fx.unhover(targetChart);
+    });
+  }
+
+  const performanceData = [
+    { metric: "Total Number of Frames", value: "10,000" },
+    { metric: "Janky Frames", value: "120" },
+    { metric: "95th Percentile", value: "16ms" },
+    { metric: "99th Percentile", value: "24ms" },
+    { metric: "Average Frame Time", value: "12ms" },
+  ];
+
+  function populatePerformanceTable() {
+    let tableBody = document.querySelector("#performanceTable");
+    tableBody.innerHTML = ""; // Clear existing data
+
+    performanceData.forEach((item) => {
+      let row = document.createElement("tr");
+      row.innerHTML = `<td>${item.metric}</td><td>${item.value}</td>`;
+      tableBody.appendChild(row);
+    });
+  }
+
+  populatePerformanceTable(); // Populate table on load
 });
