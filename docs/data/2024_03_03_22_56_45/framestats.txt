@@ -1,0 +1,4 @@
+Total Number of Frames: 2000
+Janky Frames: 345
+95th Percentile: 16ms
+99th Percentile: 24ms

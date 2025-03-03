@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CPU & Memory Usage Charts</title>
+    <title>App Metrics</title>
 
     <!-- Bootstrap for styling -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
@@ -22,7 +22,7 @@
             padding: 0;
         }
 
-        /* Layout: Divide screen into 4 quadrants */
+        /* Layout: Modified to center the third quadrant */
         .container-fluid {
             height: 100vh;
             display: grid;
@@ -37,11 +37,23 @@
             padding: 10px;
         }
 
+        /* Center the third quadrant */
+        #quadrant-3 {
+            grid-column: 1 / span 2;
+            width: 50%;
+            margin: 0 auto;
+        }
+
         /* Dropdown styling */
         #dropdown-container {
             padding: 10px;
             background: #f8f9fa;
             text-align: center;
+        }
+
+        /* Center align table */
+        .table-center {
+            margin: 0 auto;
         }
     </style>
 </head>
@@ -67,25 +79,22 @@
             <div id="memoryChart"></div>
         </div>
 
-        <div id="quadrant-3" class="quadrant"></div>
-        <div id="quadrant-4" class="quadrant">
-            <h4 class="text-center mb-3">Performance Metrics</h4>
+        <!-- Quadrant 3: Frame Stats (Centered) -->
+        <div id="quadrant-3" class="quadrant">
+            <h4 class="text-center mb-3">Frame Stats</h4>
             <div class="table-responsive">
-                <table class="table text-left">
+                <table class="table table-center">
                     <thead>
                         <tr>
                             <th>Metric</th>
                             <th>Value</th>
                         </tr>
                     </thead>
-                    <tbody id="performanceTable">
-                        <!-- Data will be inserted dynamically -->
-                    </tbody>
+                    <tbody id="framestats-table"></tbody>
                 </table>
             </div>
         </div>
     </div>
-
 
     <!-- Script -->
     <script src="script.js"></script>

@@ -6,39 +6,51 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  let csvFiles = ["file1.csv", "file2.csv"]; // Update with actual filenames
+  // Load available entries from index.json
+  fetch("/files.json")
+    .then((response) => response.json())
+    .then((entries) => {
+      if (entries.length === 0) {
+        console.error("No data directories found.");
+        return;
+      }
 
-  if (csvFiles.length === 0) {
-    console.error("No CSV files found.");
-    return;
-  }
+      // Populate dropdown
+      entries.forEach((entry) => {
+        let option = document.createElement("option");
+        option.value = entry;
+        option.textContent = entry;
+        csvDropdown.appendChild(option);
+      });
 
-  // Populate dropdown
-  csvFiles.forEach((file) => {
-    let option = document.createElement("option");
-    option.value = file;
-    option.textContent = file;
-    csvDropdown.appendChild(option);
-  });
-
-  // Load first CSV by default
-  loadCSV(csvFiles[0]);
+      // Load the first entry by default
+      loadData(entries[0]);
+    })
+    .catch((error) => console.error("Error fetching index.json:", error));
 
   csvDropdown.addEventListener("change", function () {
-    loadCSV(csvDropdown.value);
+    loadData(csvDropdown.value);
   });
 
   let timestamps = [],
     cpuUsage = [],
     memoryUsage = [];
 
-  function loadCSV(filename) {
-    fetch(`csv/${filename}`)
+  function loadData(selectedEntry) {
+    const csvPath = `data/${selectedEntry}/cpu_mem_usage.csv`;
+    const txtPath = `data/${selectedEntry}/framestats.txt`;
+
+    // Load CSV for charts
+    fetch(csvPath)
       .then((response) => response.text())
-      .then((csvData) => {
-        processCSV(csvData);
-      })
+      .then((csvData) => processCSV(csvData))
       .catch((error) => console.error("Error fetching CSV:", error));
+
+    // Load frame stats for the table
+    fetch(txtPath)
+      .then((response) => response.text())
+      .then((txtData) => processFrameStats(txtData))
+      .catch((error) => console.error("Error fetching framestats.txt:", error));
   }
 
   function processCSV(csvData) {
@@ -93,7 +105,6 @@ document.addEventListener("DOMContentLoaded", function () {
         spikethickness: 1.5,
       },
       yaxis: {
-        title: "Usage (%)",
         showspikes: true,
         spikemode: "across",
         spikesnap: "cursor",
@@ -105,8 +116,11 @@ document.addEventListener("DOMContentLoaded", function () {
       dragmode: false, // Completely disable zooming
     };
 
-    let layoutCPU = { ...commonLayout, title: "CPU Usage" };
-    let layoutMemory = { ...commonLayout, title: "Memory Usage" };
+    let layoutCPU = JSON.parse(JSON.stringify(commonLayout));
+    layoutCPU.yaxis.title = "Usage (%)";
+
+    let layoutMemory = JSON.parse(JSON.stringify(commonLayout));
+    layoutMemory.yaxis.title = "Usage (KB)";
 
     Plotly.newPlot("cpuChart", [cpuTrace], layoutCPU, {
       displayModeBar: false,
@@ -142,24 +156,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  const performanceData = [
-    { metric: "Total Number of Frames", value: "10,000" },
-    { metric: "Janky Frames", value: "120" },
-    { metric: "95th Percentile", value: "16ms" },
-    { metric: "99th Percentile", value: "24ms" },
-    { metric: "Average Frame Time", value: "12ms" },
-  ];
+  function processFrameStats(txtData) {
+    const statsTable = document.getElementById("framestats-table");
+    if (!statsTable) return;
 
-  function populatePerformanceTable() {
-    let tableBody = document.querySelector("#performanceTable");
-    tableBody.innerHTML = ""; // Clear existing data
+    statsTable.innerHTML = ""; // Clear existing data
 
-    performanceData.forEach((item) => {
-      let row = document.createElement("tr");
-      row.innerHTML = `<td>${item.metric}</td><td>${item.value}</td>`;
-      tableBody.appendChild(row);
+    let lines = txtData.trim().split("\n");
+
+    lines.forEach((line) => {
+      let [key, value] = line.split(":").map((item) => item.trim());
+      if (key && value !== undefined) {
+        let row = document.createElement("tr");
+        row.innerHTML = `<td>${key}</td><td>${value}</td>`;
+        statsTable.appendChild(row);
+      }
     });
   }
-
-  populatePerformanceTable(); // Populate table on load
 });
