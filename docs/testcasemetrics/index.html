@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Weather Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e6f7ff;
+        }
+
+        .temp-high {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .temp-low {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .last-updated {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Global Weather Data</h1>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Country</th>
+                    <th>City</th>
+                    <th>Temperature (°C)</th>
+                    <th>Humidity (%)</th>
+                    <th>Wind (km/h)</th>
+                    <th>Conditions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>United States</td>
+                    <td>New York</td>
+                    <td>18</td>
+                    <td>65</td>
+                    <td>12</td>
+                    <td>Partly Cloudy</td>
+                </tr>
+                <tr>
+                    <td>United Kingdom</td>
+                    <td>London</td>
+                    <td>15</td>
+                    <td>78</td>
+                    <td>18</td>
+                    <td>Rainy</td>
+                </tr>
+                <tr>
+                    <td>Japan</td>
+                    <td>Tokyo</td>
+                    <td>26</td>
+                    <td>70</td>
+                    <td>8</td>
+                    <td>Sunny</td>
+                </tr>
+                <tr>
+                    <td>Australia</td>
+                    <td>Sydney</td>
+                    <td class="temp-high">32</td>
+                    <td>45</td>
+                    <td>15</td>
+                    <td>Clear</td>
+                </tr>
+                <tr>
+                    <td>Canada</td>
+                    <td>Toronto</td>
+                    <td>12</td>
+                    <td>60</td>
+                    <td>20</td>
+                    <td>Cloudy</td>
+                </tr>
+                <tr>
+                    <td>Brazil</td>
+                    <td>Rio de Janeiro</td>
+                    <td>29</td>
+                    <td>80</td>
+                    <td>10</td>
+                    <td>Humid</td>
+                </tr>
+                <tr>
+                    <td>Russia</td>
+                    <td>Moscow</td>
+                    <td class="temp-low">-2</td>
+                    <td>50</td>
+                    <td>25</td>
+                    <td>Snow</td>
+                </tr>
+                <tr>
+                    <td>India</td>
+                    <td>Mumbai</td>
+                    <td>31</td>
+                    <td>85</td>
+                    <td>5</td>
+                    <td>Hot and Humid</td>
+                </tr>
+                <tr>
+                    <td>South Africa</td>
+                    <td>Cape Town</td>
+                    <td>24</td>
+                    <td>55</td>
+                    <td>22</td>
+                    <td>Windy</td>
+                </tr>
+                <tr>
+                    <td>Germany</td>
+                    <td>Berlin</td>
+                    <td>14</td>
+                    <td>68</td>
+                    <td>14</td>
+                    <td>Overcast</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p class="last-updated">Last updated: March 3, 2025</p>
+    </div>
+</body>
+
+</html>
