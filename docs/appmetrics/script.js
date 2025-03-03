@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Load available entries from index.json
-  fetch('/appmetrics/docs/appmetrics/files.json')
+  fetch('./files.json')
     .then((response) => response.json())
     .then((entries) => {
       if (entries.length === 0) {
